@@ -1,0 +1,100 @@
+<div class="waterfall-container">
+    <div id="waterfall" class="waterfall"></div>
+</div>
+<link rel="stylesheet" href="/css/album.css" />
+<script type="text/javascript">
+    const items = <%- JSON.stringify(resources || []) %>;
+
+    console.log('items', items);
+    
+    const minColWidth = 220;
+    const maxColCount = 4;
+
+    function getMinColWidth() {
+        if (window.innerWidth < 500) return 120;
+        if (window.innerWidth < 800) return 160;
+        return minColWidth;
+    }
+
+    // 实现瀑布流
+    function renderWaterfall() {
+        const container = document.getElementById('waterfall');
+        container.innerHTML = '';
+        // 计算列数
+        const containerWidth = container.offsetWidth;
+        let colCount = Math.floor(containerWidth / getMinColWidth());
+        colCount = Math.max(1, Math.min(colCount, maxColCount));
+        // 创建列并先插入到DOM，确保offsetWidth可用
+        const columns = [];
+        for (let i = 0; i < colCount; i++) {
+            const col = document.createElement('div');
+            col.className = 'waterfall-column';
+            columns.push(col);
+            container.appendChild(col);
+        }
+        // 用于存储每列的高度
+        const colHeights = Array(colCount).fill(0);
+        // 预加载图片，全部加载完后批量插入
+        let loaded = 0;
+        const imgs = [];
+        items.forEach((item, idx) => {
+            const img = document.createElement('img');
+            img.src = item.src;
+            img.onload = img.onerror = function () {
+                loaded++;
+                imgs[idx] = img;
+                if (loaded === items.length) {
+                    items.forEach((item, i) => {
+                        const itemEl = document.createElement('div');
+                        itemEl.className = 'waterfall-item';
+                        itemEl.appendChild(imgs[i]);
+
+                        let minIndex = colHeights.indexOf(Math.min(...colHeights));
+                        if (minIndex === -1) minIndex = 0;
+                        columns[minIndex].appendChild(itemEl);
+                        const imgWidth = imgs[i].width;
+                        const imgHeight = imgs[i].height;
+                        const colWidth = columns[minIndex].offsetWidth || imgWidth;
+                        const scaledHeight = imgHeight * (colWidth / imgWidth);
+                        colHeights[minIndex] += scaledHeight;
+                    });
+                    useFancybox()
+                }
+            }
+        });
+    }
+
+    // 首次渲染
+    window.addEventListener("DOMContentLoaded", renderWaterfall);
+    // 窗口变化时自适应
+    window.addEventListener('resize', () => {
+        console.log('resize');
+        clearTimeout(window.__waterfallTimer);
+        window.__waterfallTimer = setTimeout(renderWaterfall, 120);
+    });
+
+    // copied from /js/fancybox.js
+    function useFancybox() {
+        if (!window.$) {
+            return;
+        }
+        $(document).ready(function () {
+            $(".markdown-body img").each(function () {
+                if ($(this).parent().get(0).tagName.toLowerCase() === "a") {
+                    return;
+                }
+                // $(this).attr("data-fancybox", "gallery"); // if you add 'data-fancybox', img will display after showed
+                var element = document.createElement("a");
+                $(element).attr("data-fancybox", "gallery");
+                $(element).attr("style", "text-decoration: none; outline: none; border: 0px none transparent;");
+                // 判断是否启用了lazyload图片懒加载
+                if ($(this).attr("data-original")) {
+                    $(element).attr("href", $(this).attr("data-original"));
+                } else {
+                    $(element).attr("href", $(this).attr("src"));
+                }
+                $(this).wrap(element);
+            });
+        });
+    }
+</script>

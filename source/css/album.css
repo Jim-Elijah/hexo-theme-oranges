@@ -1,0 +1,80 @@
+.album-index a,
+.album-index a:hover {
+  color: var(--color-text-a);
+  border: none !important;
+}
+.album-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+.album-title .prev {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.album-title .post-title {
+  padding-top: 10px;
+}
+.waterfall-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.waterfall {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: var(--wf-gap, 1rem);
+  width: 100%;
+  transition: all 0.2s;
+}
+
+.waterfall-column {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--wf-gap, 1rem);
+  min-width: 0;
+}
+
+.waterfall-item {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.waterfall-item img {
+  width: 100% !important;
+  max-width: none;
+  display: block;
+  object-fit: cover;
+  min-height: 80px;
+}
+
+@media (max-width: 800px) {
+  .waterfall-container {
+    padding: 8px;
+  }
+
+  .waterfall {
+    gap: 8px;
+    --wf-gap: 8px;
+  }
+
+  .waterfall-column {
+    gap: 8px;
+  }
+}
+
+@media (max-width: 500px) {
+  .waterfall-container {
+    padding: 2px;
+  }
+
+  .waterfall {
+    --wf-gap: 4px;
+  }
+}

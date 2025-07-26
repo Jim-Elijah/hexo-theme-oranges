@@ -1,0 +1,11 @@
+<div class="albums-container">
+    <% children.forEach(child=> { %>
+        <div class="album-item">
+            <a href="<%- url_for(child.path) %>">
+                <img src="<%- child.cover %>" />
+                <div class="title"><%- child.title %></div>
+            </a>
+        </div>
+        <% }) %>
+</div>
+<link rel="stylesheet" href="/css/albums.css" />

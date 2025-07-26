@@ -57,7 +57,62 @@
       </div>
     </div>
   <% } %>
-
+  <% if (page.type === "albums") { %>
+     <div class="container post-details albums-index">
+        <div class="markdown-body">
+          <!-- get parentPath of page.path -->
+          <% function getParentPath(path) {
+              const parts = path.split('/');
+              if (/index\.html?$/.test(parts[parts.length - 1])) {
+                  return parts.slice(0, parts.length - 2).join('/') || "/";
+              }
+              return parts.slice(0, parts.length - 1).join('/');
+          } %>
+           <% if (page.title) { %>
+              <div class="album-title">
+                  <% const parentPath = getParentPath(page.path); %>
+                  <% if (parentPath !== "/") { %>
+                    <a href="<%- url_for(parentPath) %>" class="prev" target="_self">
+                      <i class="iconfont icon-chevronleft"></i>
+                    </a>
+                  <% } %>
+                  <div class="post-title"><%- page.title %></div>
+              </div>
+          <% } %>
+          <% if (page.children && page.children.length) { %>
+            <%- partial('_partial/albums', { children: page.children, title: page.title }) %>
+          <% } %>
+        </div>
+      </div>
+  <% } %>
+  <% if (page.type === "album") { %>
+     <div class="container post-details album-index">
+       <div class="markdown-body">
+        <!-- get parentPath of page.path -->
+          <% function getParentPath(path) {
+              const parts = path.split('/');
+              if (/index\.html?$/.test(parts[parts.length - 1])) {
+                  return parts.slice(0, parts.length - 2).join('/') || "/";
+              }
+              return parts.slice(0, parts.length - 1).join('/');
+          } %>
+           <% if (page.title) { %>
+              <div class="album-title">
+                  <% const parentPath = getParentPath(page.path); %>
+                  <% if (parentPath !== "/") { %>
+                    <a href="<%- url_for(parentPath) %>" class="prev" target="_self">
+                      <i class="iconfont icon-chevronleft"></i>
+                    </a>
+                  <% } %>
+                  <div class="post-title"><%- page.title %></div>
+              </div>
+          <% } %>
+         <% if (page.resources && page.resources.length) { %>
+          <%- partial('_partial/album', { resources: page.resources, title: page.title, }) %>
+         <% } %>
+        </div>
+      </div>
+  <% } %>
   <% if (!page.type) { %>
   <!-- 文章内容页 url形式：https://yoursite/文章标题/ -->
   <div class="container post-details" id="post-details">

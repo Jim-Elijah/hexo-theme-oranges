@@ -1,0 +1,47 @@
+.albums-index a,
+.albums-index a:hover {
+  color: var(--color-text-a);
+  border: none !important;
+}
+.album-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+.album-title .prev {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.album-title .post-title {
+  padding-top: 10px;
+}
+.albums-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 1.5rem 0;
+}
+.album-item {
+  display: flex;
+  flex: 0 0 30%;
+}
+.album-item img {
+  width: 100%;
+  object-fit: cover;
+  aspect-ratio: 1;
+  border-radius: 1rem;
+  background: none;
+  margin: 0;
+}
+.title {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  font-weight: 600;
+  font-size: 1.5rem;
+  line-height: 1.375;
+}
