@@ -15,14 +15,14 @@
         </span>
         <% if (theme.search.placeholder) { %>
           <input type="text" class="search-input" id="search-input" placeholder="<%- theme.search.placeholder %>">
-        <% } else { %>
-          <input type="text" class="search-input" id="search-input" placeholder="<%= __('search') %>">
-        <% } %>
-        <span class="search-close-icon" id="search-close-icon">
-          <a href="javascript: void(0)">
-            <i class="iconfont icon-close"></i>
-          </a>
-        </span>
+          <% } else { %>
+            <input type="text" class="search-input" id="search-input" placeholder="<%= __('search') %>">
+            <% } %>
+              <span class="search-close-icon" id="search-close-icon">
+                <a href="javascript: void(0)">
+                  <i class="iconfont icon-close"></i>
+                </a>
+              </span>
       </div>
       <div class="search-result" id="search-result"></div>
     </div>
@@ -31,14 +31,21 @@
   <script type="text/javascript">
     var inputArea = document.querySelector("#search-input")
     var searchOverlayArea = document.querySelector(".search-overlay")
-
-    inputArea.onclick = function() {
-      getSearchFile()
-      this.onclick = null
+    let isSearchFirst = true;
+    inputArea.onclick = function () {
+      doSearchFileOnce()
     }
 
-    inputArea.onkeydown = function() {
-      if(event.keyCode == 13)
+    // only searchFile once
+    function doSearchFileOnce() {
+      if (isSearchFirst) {
+        getSearchFile()
+        isSearchFirst = false;
+      }
+    }
+
+    inputArea.onkeydown = function () {
+      if (event.keyCode == 13)
         return false
     }
 
@@ -47,7 +54,11 @@
       if (isHidden) {
         searchOverlayArea.classList.remove('hidden')
         document.body.classList.add('hidden')
-        // inputArea.focus()
+        setTimeout(() => {
+          // auto focus and build search index
+          inputArea.focus()
+          doSearchFileOnce()
+        }, 100);
       } else {
         searchOverlayArea.classList.add('hidden')
         document.body.classList.remove('hidden')
@@ -63,6 +74,18 @@
     document.querySelector("#search-icon").addEventListener("click", openOrHideSearchContent, false)
     document.querySelector("#search-close-icon").addEventListener("click", openOrHideSearchContent, false)
     searchOverlayArea.addEventListener("click", blurSearchContent, false)
+
+    document.addEventListener('keydown', function (event) {
+      // if the search content is open, pressing ESC will close it
+      if (event.keyCode === 27 && !searchOverlayArea.classList.contains('hidden')) {
+        openOrHideSearchContent()
+        return;
+      }
+      // if the search content is closed, pressing '/' will open it and focus on the input and build search index
+      if (event.keyCode === 191 && searchOverlayArea.classList.contains('hidden')) {
+          openOrHideSearchContent()
+      }
+    }, false);
 
     var searchFunc = function (path, search_id, content_id) {
       'use strict';
@@ -130,6 +153,9 @@
               }
               // 0x05. show search results
               if (isMatch) {
+                // ensure data_url starts with a single slash
+                // because sometimes data_url may start with double slashes
+                data_url = data_url.replace(/^\/{2,}/, '/');
                 str += "<li><a href='" + data_url + "' class='search-result-title'>" + orig_data_title + "</a>";
                 var content = orig_data_content;
                 if (first_occur >= 0) {
@@ -169,7 +195,7 @@
             $resultContent.innerHTML = str;
           });
         },
-        error: function(xhr, status, error) {
+        error: function (xhr, status, error) {
           $resultContent.innerHTML = ""
           if (xhr.status === 404) {
             $resultContent.innerHTML = "<ul><span class='local-search-empty'><%= __('searchFilesNotfound') %><a href='https://github.com/zchengsite/hexo-theme-oranges#configuration' target='_black'>configuration</a><span></ul>";
@@ -178,15 +204,16 @@
           }
         }
       });
-      $(document).on('click', '#search-close-icon', function() {
+      $(document).on('click', '#search-close-icon', function () {
         $('#search-input').val('');
         $('#search-result').html('');
       });
     }
 
-    var getSearchFile = function() {
-        var path = "/search.xml";
-        searchFunc(path, 'search-input', 'search-result');
+    // this function is called once to build search index
+    var getSearchFile = function () {
+      var path = "/search.xml";
+      searchFunc(path, 'search-input', 'search-result');
     }
   </script>
 
